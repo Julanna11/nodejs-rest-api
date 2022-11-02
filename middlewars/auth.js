@@ -2,6 +2,7 @@ const { User } = require("../models/user");
 const jwt = require("jsonwebtoken");
 const { RequestError } = require("../helpers");
 const { SECRET_KEY } = process.env;
+require("dotenv").config();
 
 const throwUnauthorizedError = () => {
   throw RequestError(401, "Not authorized");
