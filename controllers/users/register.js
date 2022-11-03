@@ -1,6 +1,9 @@
 const { User } = require("../../models/user");
-const { RequestError } = require("../../helpers");
+const { RequestError, sendEmail } = require("../../helpers");
 const bcrypt = require("bcryptjs");
+const { nanoid } = require("nanoid");
+const { BASE_URL, PORT } = process.env;
+require("dotenv").config();
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -9,11 +12,19 @@ const register = async (req, res) => {
     throw RequestError(409, "Email in use");
   }
   const hashedPassw = await bcrypt.hash(password, 5);
-  const result = await User.create({ email, password: hashedPassw });
+  const verificationToken = nanoid();
+  const result = await User.create({
+    email,
+    password: hashedPassw,
+    verificationToken,
+  });
+
+  await sendEmail(mail);
   res.status(201).json({
     user: {
       email: result.email,
       subscription: result.subscription,
+      verificationToken: result.verificationToken,
     },
   });
 };
